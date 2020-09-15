@@ -20,7 +20,6 @@ def main(lang, input_file, output_file):
 
     model_path = 'models_CNN/'+lang.lower()+'_clean_28042020.csv_cnn_s2s.keras'
     model = keras.models.load_model(model_path)
-#    model.compile(optimizer='adam')
 
     input_token_index = config_lang[lang.lower()]['input_token_index']
     target_token_index = config_lang[lang.lower()]['target_token_index']
@@ -34,15 +33,15 @@ def main(lang, input_file, output_file):
     with open(input_file, 'r', encoding='utf-8') as f:
             lines = f.readlines()[:]
 
-    for line in lines:
-      for wd in line.split():
-        if wd not in input_texts:
-            if all([ch in input_token_index for ch in wd]):
-              s = ''.join(ch for ch in wd.lower() if ch not in exclude and ch in input_token_index)
-              input_texts.append(s.lower().strip())
+    wds = set([wd for line in lines for wd in line.split() ])
+    for wd in wds:
+        if all([ch in input_token_index for ch in wd.lower() if ch not in exclude]):
+           s = ''.join(ch for ch in wd.lower() if ch not in exclude)
+           if len(s)>0:
+                input_texts.append(s.strip())
 
     nb_examples = len(input_texts)
-
+    print (input_texts)
     reverse_input_char_index = dict(
         (i, char) for char, i in input_token_index.items())
     reverse_target_char_index = dict(
@@ -97,11 +96,12 @@ def main(lang, input_file, output_file):
             fout.write("%s|" %lines[i].strip())
             for wd in lines[i].strip().lower().split():
                 wd_strip = ''.join(ch for ch in wd.lower() if ch not in exclude)
-                if wd_strip in decoded:
+                if wd_strip in decoded_dict:
                     fout.write("[%s] " %decoded_dict[wd_strip])
                 else:
                     fout.write("[UNK] ")
             fout.write("\n")
+
     print ('\n'+"*"*20)
     print ("DONE! Wrote %d lines to %s..." %(len(lines), output_file))
     print ("*"*20+'\n')

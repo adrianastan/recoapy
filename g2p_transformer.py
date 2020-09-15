@@ -42,9 +42,10 @@ def main(lang, input_file, output_file):
     for line in lines:
         for wd in line.strip().split():
             if wd not in input_texts:
-                if all([ch in input_token_index for ch in wd]):
-                    s = ''.join(ch for ch in wd.lower() if ch not in exclude and ch in input_token_index)
-                    input_texts.append([x for x in s.lower().strip()])
+                if all([ch in input_token_index for ch in wd.lower() if ch not in exclude]):
+                    s = ''.join(ch for ch in wd.lower() if ch not in exclude)
+                    if len(s):
+                        input_texts.append([x for x in s.lower().strip()])
          
 
     reverse_input_char_index = dict(
