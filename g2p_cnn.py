@@ -20,7 +20,7 @@ def main(lang, input_file, output_file):
 
     model_path = 'models_CNN/'+lang.lower()+'_clean_28042020.csv_cnn_s2s.keras'
     model = keras.models.load_model(model_path)
-    model.compile(optimizer='adam')
+#    model.compile(optimizer='adam')
 
     input_token_index = config_lang[lang.lower()]['input_token_index']
     target_token_index = config_lang[lang.lower()]['target_token_index']
@@ -37,8 +37,9 @@ def main(lang, input_file, output_file):
     for line in lines:
       for wd in line.split():
         if wd not in input_texts:
-          s = ''.join(ch for ch in wd.lower() if ch not in exclude)
-          input_texts.append(s.lower().strip())
+            if all([ch in input_token_index for ch in wd]):
+              s = ''.join(ch for ch in wd.lower() if ch not in exclude and ch in input_token_index)
+              input_texts.append(s.lower().strip())
 
     nb_examples = len(input_texts)
 
@@ -56,10 +57,8 @@ def main(lang, input_file, output_file):
 
     for i, test_input_text in enumerate(input_texts):
         for t, char in enumerate(test_input_text):
-            try:
-                test_encoder_input_data[i, t, input_token_index[char]] = 1.
-            except:
-                print (test_input_text)
+            test_encoder_input_data[i, t, input_token_index[char]] = 1.
+                
 
     in_encoder = test_encoder_input_data[:nb_examples]
     in_decoder = np.zeros(
@@ -98,8 +97,10 @@ def main(lang, input_file, output_file):
             fout.write("%s|" %lines[i].strip())
             for wd in lines[i].strip().lower().split():
                 wd_strip = ''.join(ch for ch in wd.lower() if ch not in exclude)
-                fout.write("[%s] " %decoded_dict[wd_strip])
-#                print (wd.ljust(20), "["+decoded_dict[wd_strip]+"]")
+                if wd_strip in decoded:
+                    fout.write("[%s] " %decoded_dict[wd_strip])
+                else:
+                    fout.write("[UNK] ")
             fout.write("\n")
     print ('\n'+"*"*20)
     print ("DONE! Wrote %d lines to %s..." %(len(lines), output_file))
