@@ -1,5 +1,6 @@
 # RECOApy
 
+## Tool description
 
 RECOApy streamlines the steps of data recording and pre-processing 
 required in end-to-end speech-based applications. The tool implements an easy-to-use 
@@ -7,7 +8,6 @@ interface for prompted speech recording, spectrogram and waveform analysis,
 utterance-level normalisation and silence trimming, as well grapheme-to-phoneme 
 conversion of the prompts in eight languages:  Czech, English, French, German, 
 Italian, Polish, Romanian and Spanish.
-
 
 The tool's description was accepted for publication at Interspeech 2020. If you
 use the tool, please cite:
@@ -25,7 +25,9 @@ The cleaned Wiktionary lexicons are available in:
 
 To use the G2P module, run:
 
-`python g2p_cnn.py <lang> <input_file> <output_file>`
+`python g2p_cnn.py <lang> <input_file> <output_file>`  for the CNN-based models, or
+
+`python g2p_transformer.py <lang> <input_file> <output_file>` for the Transformer-based models.
 
 e.g.
 
@@ -44,6 +46,8 @@ The available language identifiers are:
 The `g2p_cnn.py` script takes an input file with one utterance per line, strips the non-alphabetic symbols, runs the CNN-based models and outputs a file in the format:
 
 `Orthographic transcript | [p h o n e t i c] [t r a n s c r i p t]`
+
+The models will output an  `[UNK]` token for the words which do not contain valid graphemes in the corresponding language. For a list of valid graphemes check the `models_cnn/config_lang.py` or `models_transformer/config_lang_tsf.py` files.
 
 This file can then be used as input to the RECOApy tool.
 
